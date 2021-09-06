@@ -119,13 +119,14 @@ dict_zero = {'t_p':2.3178, 'ff':'0'}
 dict_plus = {'t_p':2.1122, 'ff':'+'}
 
 t_range = np.arange(0,t_minus,0.01)+0.01
+t_range = np.array([round(t,2) for t in t_range])
 N_boot = 100
 N_0 = 10
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
-zero_dist = {str(round(t,2)):{'up':[], 'lo':[]} for t in t_range}
-plus_dist = {str(round(t,2)):{'up':[], 'lo':[]} for t in t_range} 
+zero_dist = {str(t):{'up':[], 'lo':[]} for t in t_range}
+plus_dist = {str(t):{'up':[], 'lo':[]} for t in t_range} 
 accepted_idx = []
 
 import time
