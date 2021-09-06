@@ -191,12 +191,12 @@ for i in range(len(accepted_ts)):
 
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
-    '''standard deviation function - finds stdev around data mean or mean                                                                                                                             
-         provided as input'''
-     n = len(data)
-     if mean.any()==None:
-         mean = np.mean(data)
-     return np.sqrt(((data-mean).dot(data-mean))/n)
+    '''standard deviation function - finds stdev around data mean or mean
+    provided as input'''
+    n = len(data)
+    if mean.any()==None:
+        mean = np.mean(data)
+    return (((data-mean).dot(data-mean))/n)**0.5
 
 
 
