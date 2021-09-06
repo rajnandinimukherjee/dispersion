@@ -163,11 +163,40 @@ for k in range(N_boot):
 
 print('Time taken:',time.time()-t1)
 
+for t in t_range:
+    if np.isnan(zero_dist[str(t)]['up']).any():
+        del zero_dist[str(t)]
+        del plus_dist[str(t)]
+
+accepted_ts = np.array(list(zero_dist.keys())).astype(float)
+f = np.zeros(shape=(len(accepted_ts)))
+errs = np.zeros(shape=(len(accepted_ts)))
+for i in range(len(accepted_ts)):
+    t = accepted_ts[i]
+    lows = list(zero_dist[str(t)]['lo'])
+    ups = list(zero_dist[str(t)]['up'])
+    f_lo, f_lo_err = np.mean(lows), st_dev(lows, mean=f_lo)
+    f_up, f_up_err = np.mean(ups), st_dev(ups, mean=f_up)
+    
+    N = len(lows)
+    rho = np.sum(np.array([[(lows[i]-f_lo)*(ups[j]-f_up) for i in range(N)]
+                            for j in range(N)]))/(N-1)
+
+    f_t = (f_lo + f_up)/2
+    var_t = ((f_up-f_lo)**2)/12
+    var_t = var_t + ((f_lo_err**2)+(f_up_err**2)+(rho*f_lo_err*f_up_err))/3
+
+    f[i] = f_t
+    errs[i] = var_t**0.5
 
 
-
-
-
+def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
+    '''standard deviation function - finds stdev around data mean or mean                                                                                                                             
+         provided as input'''
+     n = len(data)
+     if mean.any()==None:
+         mean = np.mean(data)
+     return np.sqrt(((data-mean).dot(data-mean))/n)
 
 
 
