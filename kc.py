@@ -180,9 +180,9 @@ for t in t_range:
     if np.isnan(zero_dist[str(t)]['up']).any():
         del zero_dist[str(t)]
         del plus_dist[str(t)]
-import pickle
-zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
-plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
+#import pickle
+#zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
+#plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
@@ -242,60 +242,6 @@ plt.legend(['lo','up'])
 plt.xlabel('t')
 
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#N_acc = len(accepted_idx)
-#accepted_samples = samples[accepted_idx,:]
-#accepted_X = samples_X[accepted_idx,:]
-#
-#def constrained_bounds(unknown_t, known_ts, known_ffs, X, **kwargs):
-#    N_0 = 100
-#    f_dist = []
-#    for k in range(N_acc):
-#        f0s = np.random.uniform(accepted_bounds[k][0], accepted_bounds[k][1], N_0)
-#        bnds= []
-#        for n in range(N_0):
-#            known_ts_0 = np.hstack((known_ts,0))
-#            known_ffs_0 = np.hstack((known_ffs,f0s[n]))
-#            bnds.append(bounds(unknown_t, known_ts_0, known_ts_0, X,
-#                                        **kwargs))
-#        bnds = np.array(bnds)
-#        f_dist.append([min(bnds[:,0]), max(bnds[:,1])])
-#    
-#    return f_dist
-#        
-#def bounds_with_errors(t_range, **kwargs):
-#    t_dist = []
-#    for t in t_range:
-#        t_dist.append(constrained_bounds(unknown_t=t,**kwargs))
-#
-#    return np.array(t_dist)
-#
-#t_dist_zero = bounds_with_errors(t_range, known_ts=known_ts, known_ffs=ffs_zero,
-#                                X=X_zero, **dict_zero)
 
 
 
