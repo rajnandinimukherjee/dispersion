@@ -121,8 +121,8 @@ dict_plus = {'t_p':2.1122, 'ff':'+'}
 
 t_range = np.arange(0,t_minus,0.1)+0.1
 t_range = np.array([round(t,2) for t in t_range])
-N_boot = 5
-N_0 = 3
+N_boot = 500
+N_0 = 50
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
