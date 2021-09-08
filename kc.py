@@ -180,9 +180,9 @@ for t in t_range:
     if np.isnan(zero_dist[str(t)]['up']).any():
         del zero_dist[str(t)]
         del plus_dist[str(t)]
-import pickle
-zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
-plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
+#import pickle
+#zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
+#plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
