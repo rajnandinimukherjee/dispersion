@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+prec = np.float64
 
 # D -> K
 eta = 2
@@ -43,7 +44,8 @@ def phi(t, t_p=None, Q_sq=0, ff='+',  **kwargs):
     return phi
 
 def G(t_vec, **kwargs):
-    G = np.array([[1/(1-z(t1)*z(t2)) for t2 in t_vec] for t1 in t_vec])
+    G = np.array([[1/(1-z(t1)*z(t2)) for t2 in t_vec] for t1 in t_vec], 
+            dtype=prec)
     return G
 
 def del_RC(matrix, row, col):
@@ -53,13 +55,15 @@ def del_RC(matrix, row, col):
 
 def M11(known_ts, known_ffs, X, **kwargs):
     N = len(known_ts)
-    phi_ff_vec = phi(np.array(known_ts),**kwargs)*known_ffs
+    phi_ff_vec = np.array(phi(np.array(known_ts),**kwargs)*known_ffs,
+                        dtype=prec)
     #phi_ff_vec = np.array([phi(known_ts[i],**kwargs)*known_ffs[i]
     #                       for i in range(N)])
 
     top_line = np.hstack((X, phi_ff_vec))
     g00 = G(known_ts)
-    bottom = np.array([np.hstack((phi_ff_vec[i], g00[i,:])) for i in range(N)])
+    bottom = np.array([np.hstack((phi_ff_vec[i], g00[i,:])) for i in range(N)],
+                        dtype=prec)
 
     M11 = np.vstack((top_line, bottom))
     return M11
@@ -70,19 +74,22 @@ def bounds(unknown_t, known_ts, known_ffs, X, prnt=False, **kwargs):
     g = G(np.hstack((unknown_t, known_ts)))
 
     alpha = det(del_RC(g,0,0))
-    beta = sum([((-1)**(j+1))*phi(known_ts[j],**kwargs)*known_ffs[j]*det(del_RC(g,0,j+1))
-                for j in range(N)])
-    gamma_mtx = np.array([[((-1)**(i+j+2))*phi(known_ts[i],**kwargs)*phi(known_ts[j],
+    beta = np.sum(np.array([((-1)**(j+1))*phi(known_ts[j],**kwargs
+                            )*known_ffs[j]*det(del_RC(g,0,j+1))
+                            for j in range(N)], dtype=prec))
+    gamma_mtx = np.array([[((-1)**(i+j))*phi(known_ts[i],**kwargs)*phi(known_ts[j],
                         **kwargs)*known_ffs[i]*known_ffs[j]*det(del_RC(g,i+1,j+1)) 
-                            for j in range(N)] for i in range(N)])
+                            for j in range(N)] for i in range(N)], dtype=prec)
     gamma = X*det(g)-np.sum(gamma_mtx)
 
     disc = ((beta**2)+(alpha*gamma))
+    if disc<0:
+        disc=0
     upper_bound = (-beta+(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
     lower_bound = (-beta-(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
 
     if prnt:
-        print((lower_bound, upper_bound), disc)
+        print((lower_bound, upper_bound),'\ndiscriminant:'+str(disc))
     return [lower_bound, upper_bound]
 
 def bootstrap(var, cov, K=100, **kwargs):
@@ -104,12 +111,6 @@ COV = np.loadtxt('cov.txt')
 COV_input = np.block([[COV[5:8,5:8],COV[5:8,12:15]],
                       [COV[12:15,5:8],COV[12:15,12:15]]])
 
-#known_vals = {'known_ts':known_ts, 'ffs_zero':ffs_zero,
-#              'ffs_plus':ffs_plus, 'Q_sq':0, 'N_boot':1000,
-#              'X_zero':0.0043, 'X_zero_err':0.0013,
-#              'X_plus':0.00419, 'X_plus_err': 0.00036,
-#              't_p_zero':2.3178, 't_p_plus':2.1122}
-
 known_ffs = np.hstack((ffs_zero,ffs_plus))
 X_zero, X_plus = 0.0043, 0.00419
 X_zero_err, X_plus_err = 0.0013, 0.00036
@@ -118,10 +119,10 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'t_p':2.3178, 'ff':'0'}
 dict_plus = {'t_p':2.1122, 'ff':'+'}
 
-t_range = np.arange(0,t_minus,0.01)+0.01
+t_range = np.arange(0,t_minus,0.1)+0.1
 t_range = np.array([round(t,2) for t in t_range])
-N_boot = 100
-N_0 = 10
+N_boot = 5
+N_0 = 3
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
@@ -146,6 +147,18 @@ for k in range(N_boot):
             known_ts_0 = np.hstack((known_ts,0))
             
             for t in t_range:
+                #for n in range(N_0):
+                #    m11 = M11(known_ts_0,np.hstack((samples[k,:3],f0s[n])),
+                #            samples_X[k,0], **dict_zero)
+                #    g = G(np.hstack((t,known_ts_0)))
+                #    print('\nbtsp:'+str(k), 't:'+str(t), 'n_0:'+str(n),
+                #            'f0:'+str(f0s[n]),
+                #            '\ndetM11*detG:'+str(det(m11)*det(g)),
+                #                '\neigvals:'+str(np.hstack((np.linalg.eigvals(m11),
+                #                                    np.linalg.eigvals(g)))),
+                #            '\nbounds:')
+                #    bounds(t,known_ts_0, np.hstack((samples[k,:3],f0s[n])),
+                #            samples_X[k,0], prnt=True, **dict_zero)
                 zero_bounds = np.array([bounds(t,known_ts_0,
                                 np.hstack((samples[k,:3],f0s[n])),
                                 samples_X[k,0],**dict_zero)
@@ -167,28 +180,9 @@ for t in t_range:
     if np.isnan(zero_dist[str(t)]['up']).any():
         del zero_dist[str(t)]
         del plus_dist[str(t)]
-
-accepted_ts = np.array(list(zero_dist.keys())).astype(float)
-f = np.zeros(shape=(len(accepted_ts)))
-errs = np.zeros(shape=(len(accepted_ts)))
-for i in range(len(accepted_ts)):
-    t = accepted_ts[i]
-    lows = list(zero_dist[str(t)]['lo'])
-    ups = list(zero_dist[str(t)]['up'])
-    f_lo, f_lo_err = np.mean(lows), st_dev(lows, mean=f_lo)
-    f_up, f_up_err = np.mean(ups), st_dev(ups, mean=f_up)
-    
-    N = len(lows)
-    rho = np.sum(np.array([[(lows[i]-f_lo)*(ups[j]-f_up) for i in range(N)]
-                            for j in range(N)]))/(N-1)
-
-    f_t = (f_lo + f_up)/2
-    var_t = ((f_up-f_lo)**2)/12
-    var_t = var_t + ((f_lo_err**2)+(f_up_err**2)+(rho*f_lo_err*f_up_err))/3
-
-    f[i] = f_t
-    errs[i] = var_t**0.5
-
+import pickle
+zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
+plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
@@ -198,6 +192,56 @@ def st_dev(data, mean=None, **kwargs):
         mean = np.mean(data)
     return (((data-mean).dot(data-mean))/n)**0.5
 
+accepted_ts = np.array(list(zero_dist.keys())).astype(float)
+bnds = np.zeros(shape=(len(accepted_ts),2))
+bnds_err = np.zeros(shape=(len(accepted_ts),2))
+def final_bounds(dist):
+    f = np.zeros(shape=(len(accepted_ts)))
+    errs = np.zeros(shape=(len(accepted_ts)))
+    for i in range(len(accepted_ts)):
+        t = accepted_ts[i]
+        lows = list(dist[str(t)]['lo'])
+        ups = list(dist[str(t)]['up'])
+        f_lo = np.mean(lows)
+        f_lo_err = st_dev(lows, mean=f_lo)
+        f_up = np.mean(ups)
+        f_up_err = st_dev(ups, mean=f_up)
+
+        bnds[i,:] = [f_lo, f_up]
+        bnds_err[i,:] = [f_lo_err, f_up_err]
+        
+        N = len(lows)
+        rho = np.sum(np.array([[(lows[i]-f_lo)*(ups[j]-f_up) for i in range(N)]
+                                for j in range(N)]))/(N-1)
+
+        f_t = (f_lo + f_up)/2
+        var_t = ((f_up-f_lo)**2)/12
+        var_t = var_t + ((f_lo_err**2)+(f_up_err**2)+(rho*f_lo_err*f_up_err))/3
+
+        f[i] = f_t
+        errs[i] = var_t**0.5
+    return f, errs
+
+f_zero, f_zero_errs = final_bounds(zero_dist)
+f_plus, f_plus_errs = final_bounds(plus_dist)
+
+plt.figure()
+plt.errorbar(accepted_ts, f_zero, yerr=f_zero_errs, fmt='none', capsize=4, c='b')
+plt.errorbar(accepted_ts, f_plus, yerr=f_plus_errs, fmt='none', capsize=4, c='r')
+plt.legend(['f0','f+'])
+plt.xlabel('t')
+
+plt.figure()
+plt.plot(accepted_ts, bnds[:,0], c='b')
+plt.fill_between(accepted_ts, bnds[:,0]+bnds_err[:,0], bnds[:,0]-bnds_err[:,0],
+                alpha=0.2, color='b')
+plt.plot(accepted_ts, bnds[:,1], c='r')
+plt.fill_between(accepted_ts, bnds[:,1]+bnds_err[:,1], bnds[:,1]-bnds_err[:,1],
+                alpha=0.2, color='r')
+plt.legend(['lo','up'])
+plt.xlabel('t')
+
+plt.show()
 
 
 
