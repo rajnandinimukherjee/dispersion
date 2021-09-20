@@ -126,63 +126,63 @@ N_0 = 50
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
-zero_dist = {str(t):{'up':[], 'lo':[]} for t in t_range}
-plus_dist = {str(t):{'up':[], 'lo':[]} for t in t_range} 
-accepted_idx = []
-
-import time
-t1 = time.time()
-for k in range(N_boot):
-    m11_zero = M11(known_ts, samples[k,:3], samples_X[k,0], **dict_zero)
-    m11_plus = M11(known_ts, samples[k,3:], samples_X[k,1], **dict_plus)
-    if det(m11_zero)>0 and det(m11_plus)>0:
-        [zero_low, zero_up] = bounds(0, known_ts, samples[k,:3], samples_X[k,0],
-                                     **dict_zero)
-        [plus_low, plus_up] = bounds(0, known_ts, samples[k,3:], samples_X[k,1],
-                                     **dict_plus)
-        if zero_up>plus_low and plus_up>zero_low: # kinematical constraint
-            accepted_idx.append(k)
-            np.random.seed(1)
-            f0s = np.random.uniform(max(zero_low,plus_low), min(zero_up,plus_up), N_0)
-            known_ts_0 = np.hstack((known_ts,0))
-            
-            for t in t_range:
-                #for n in range(N_0):
-                #    m11 = M11(known_ts_0,np.hstack((samples[k,:3],f0s[n])),
-                #            samples_X[k,0], **dict_zero)
-                #    g = G(np.hstack((t,known_ts_0)))
-                #    print('\nbtsp:'+str(k), 't:'+str(t), 'n_0:'+str(n),
-                #            'f0:'+str(f0s[n]),
-                #            '\ndetM11*detG:'+str(det(m11)*det(g)),
-                #                '\neigvals:'+str(np.hstack((np.linalg.eigvals(m11),
-                #                                    np.linalg.eigvals(g)))),
-                #            '\nbounds:')
-                #    bounds(t,known_ts_0, np.hstack((samples[k,:3],f0s[n])),
-                #            samples_X[k,0], prnt=True, **dict_zero)
-                zero_bounds = np.array([bounds(t,known_ts_0,
-                                np.hstack((samples[k,:3],f0s[n])),
-                                samples_X[k,0],**dict_zero)
-                                for n in range(N_0)])
-
-                plus_bounds = np.array([bounds(t,known_ts_0,
-                                np.hstack((samples[k,3:],f0s[n])),
-                                samples_X[k,1],**dict_plus)
-                                for n in range(N_0)])
-
-                zero_dist[str(t)]['lo'].append(np.min(zero_bounds[:,0]))
-                zero_dist[str(t)]['up'].append(np.min(zero_bounds[:,1]))
-                plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
-                plus_dist[str(t)]['up'].append(np.min(plus_bounds[:,1]))
-
-print('Time taken:',time.time()-t1)
-
-for t in t_range:
-    if np.isnan(zero_dist[str(t)]['up']).any():
-        del zero_dist[str(t)]
-        del plus_dist[str(t)]
-#import pickle
-#zero_dist = pickle.load(open('plus_dist_100x10.p','rb'))
-#plus_dist = pickle.load(open('zero_dist_100x10.p','rb'))
+#zero_dist = {str(t):{'up':[], 'lo':[]} for t in t_range}
+#plus_dist = {str(t):{'up':[], 'lo':[]} for t in t_range} 
+#accepted_idx = []
+#
+#import time
+#t1 = time.time()
+#for k in range(N_boot):
+#    m11_zero = M11(known_ts, samples[k,:3], samples_X[k,0], **dict_zero)
+#    m11_plus = M11(known_ts, samples[k,3:], samples_X[k,1], **dict_plus)
+#    if det(m11_zero)>0 and det(m11_plus)>0:
+#        [zero_low, zero_up] = bounds(0, known_ts, samples[k,:3], samples_X[k,0],
+#                                     **dict_zero)
+#        [plus_low, plus_up] = bounds(0, known_ts, samples[k,3:], samples_X[k,1],
+#                                     **dict_plus)
+#        if zero_up>plus_low and plus_up>zero_low: # kinematical constraint
+#            accepted_idx.append(k)
+#            np.random.seed(1)
+#            f0s = np.random.uniform(max(zero_low,plus_low), min(zero_up,plus_up), N_0)
+#            known_ts_0 = np.hstack((known_ts,0))
+#            
+#            for t in t_range:
+#                #for n in range(N_0):
+#                #    m11 = M11(known_ts_0,np.hstack((samples[k,:3],f0s[n])),
+#                #            samples_X[k,0], **dict_zero)
+#                #    g = G(np.hstack((t,known_ts_0)))
+#                #    print('\nbtsp:'+str(k), 't:'+str(t), 'n_0:'+str(n),
+#                #            'f0:'+str(f0s[n]),
+#                #            '\ndetM11*detG:'+str(det(m11)*det(g)),
+#                #                '\neigvals:'+str(np.hstack((np.linalg.eigvals(m11),
+#                #                                    np.linalg.eigvals(g)))),
+#                #            '\nbounds:')
+#                #    bounds(t,known_ts_0, np.hstack((samples[k,:3],f0s[n])),
+#                #            samples_X[k,0], prnt=True, **dict_zero)
+#                zero_bounds = np.array([bounds(t,known_ts_0,
+#                                np.hstack((samples[k,:3],f0s[n])),
+#                                samples_X[k,0],**dict_zero)
+#                                for n in range(N_0)])
+#
+#                plus_bounds = np.array([bounds(t,known_ts_0,
+#                                np.hstack((samples[k,3:],f0s[n])),
+#                                samples_X[k,1],**dict_plus)
+#                                for n in range(N_0)])
+#
+#                zero_dist[str(t)]['lo'].append(np.min(zero_bounds[:,0]))
+#                zero_dist[str(t)]['up'].append(np.min(zero_bounds[:,1]))
+#                plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
+#                plus_dist[str(t)]['up'].append(np.min(plus_bounds[:,1]))
+#
+#print('Time taken:',time.time()-t1)
+#
+#for t in t_range:
+#    if np.isnan(zero_dist[str(t)]['up']).any():
+#        del zero_dist[str(t)]
+#        del plus_dist[str(t)]
+import pickle
+zero_dist = pickle.load(open('zero_dist_500x50x0.1.p','rb'))
+plus_dist = pickle.load(open('plus_dist_500x50x0.1.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
@@ -226,8 +226,26 @@ f_zero, f_zero_errs = final_bounds(zero_dist)
 f_plus, f_plus_errs = final_bounds(plus_dist)
 
 plt.figure()
-plt.errorbar(accepted_ts, f_zero, yerr=f_zero_errs, fmt='none', capsize=4, c='b')
-plt.errorbar(accepted_ts, f_plus, yerr=f_plus_errs, fmt='none', capsize=4, c='r')
+plt.fill_between(accepted_ts, f_zero+f_zero_errs, f_zero-f_zero_errs,
+                alpha=0.2, color='b')
+plt.fill_between(accepted_ts, f_plus+f_plus_errs, f_plus-f_plus_errs,
+                alpha=0.2, color='g')
+plt.errorbar(known_ts, ffs_zero, yerr=np.diag(COV_input)[:3]**0.5, fmt='o', 
+            capsize=4, c='r')
+plt.errorbar(known_ts, ffs_plus, yerr=np.diag(COV_input)[3:]**0.5, fmt='o', 
+            capsize=4, c='r')
+
+other_ts = [0.0, 0.2692, 0.5385, 0.8077, 1.0769]
+other_f_zero = [0.765, 0.792, 0.820, 0.849, 0.879]
+other_f_zero_errs = [0.031, 0.028, 0.025, 0.023, 0.021]
+
+other_f_plus = [0.765, 0.815, 0.872, 0.937, 1.013]
+other_f_plus_errs = [0.031, 0.031, 0.031, 0.031, 0.034]
+
+plt.errorbar(other_ts, other_f_zero, yerr=other_f_zero_errs, fmt='o', 
+            capsize=4, c='b')
+plt.errorbar(other_ts, other_f_plus, yerr=other_f_plus_errs, fmt='o', 
+            capsize=4, c='g')
 plt.legend(['f0','f+'])
 plt.xlabel('t')
 
