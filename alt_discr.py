@@ -146,7 +146,7 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'t_p':2.3178, 'ff':'0'}
 dict_plus = {'t_p':2.1122, 'ff':'+'}
 
-t_range = np.arange(0,t_minus,0.1)
+t_range = np.arange(0,t_minus+0.1,0.1)
 t_range = np.array([round(t,2) for t in t_range])
 N_boot = 100
 N_0 = 10
@@ -159,7 +159,7 @@ accepted_idx = []
 
 import time
 t1 = time.time()
-from tqdm import tdqm
+from tqdm import tqdm
 for k in tqdm(range(N_boot)):
     m11_zero = M11(known_ts, samples[k,:3], samples_X[k,0], **dict_zero)
     m11_plus = M11(known_ts, samples[k,3:], samples_X[k,1], **dict_plus)
@@ -198,9 +198,9 @@ for k in tqdm(range(N_boot)):
                                 for n in range(N_0)])
 
                 zero_dist[str(t)]['lo'].append(np.min(zero_bounds[:,0]))
-                zero_dist[str(t)]['up'].append(np.min(zero_bounds[:,1]))
+                zero_dist[str(t)]['up'].append(np.max(zero_bounds[:,1]))
                 plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
-                plus_dist[str(t)]['up'].append(np.min(plus_bounds[:,1]))
+                plus_dist[str(t)]['up'].append(np.max(plus_bounds[:,1]))
 
 print('Time taken:',time.time()-t1)
 

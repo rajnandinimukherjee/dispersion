@@ -172,9 +172,9 @@ for k in tqdm(range(N_boot)):
                                 for n in range(N_0)])
 
                 zero_dist[str(t)]['lo'].append(np.min(zero_bounds[:,0]))
-                zero_dist[str(t)]['up'].append(np.min(zero_bounds[:,1]))
+                zero_dist[str(t)]['up'].append(np.max(zero_bounds[:,1]))
                 plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
-                plus_dist[str(t)]['up'].append(np.min(plus_bounds[:,1]))
+                plus_dist[str(t)]['up'].append(np.max(plus_bounds[:,1]))
 print('Time taken:',time.time()-t1)
 
 for t in t_range:
@@ -182,8 +182,8 @@ for t in t_range:
         del zero_dist[str(t)]
         del plus_dist[str(t)]
 #import pickle
-#zero_dist = pickle.load(open('zero_dist_500x50x0.1.p','rb'))
-#plus_dist = pickle.load(open('plus_dist_500x50x0.1.p','rb'))
+#zero_dist = pickle.load(open('zero_dist_20000x100x0.1.p','rb'))
+#plus_dist = pickle.load(open('plus_dist_20000x100x0.1.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
