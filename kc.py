@@ -81,10 +81,11 @@ def bounds(unknown_t, known_ts, known_ffs, X, prnt=False, **kwargs):
                         **kwargs)*known_ffs[i]*known_ffs[j]*det(del_RC(g,i+1,j+1)) 
                             for j in range(N)] for i in range(N)], dtype=prec)
     gamma = X*det(g)-np.sum(gamma_mtx)
+    disc = det(M11(known_ts, known_ffs, X, **kwargs))*det(g)
 
-    disc = ((beta**2)+(alpha*gamma))
-    if disc<0:
-        disc=0
+    #disc = ((beta**2)+(alpha*gamma))
+    #if disc<0:
+    #    disc=0
     upper_bound = (-beta+(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
     lower_bound = (-beta-(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
 
@@ -119,9 +120,9 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'t_p':2.3178, 'ff':'0'}
 dict_plus = {'t_p':2.1122, 'ff':'+'}
 
-t_range = np.arange(0,t_minus,0.05)+0.05
+t_range = np.arange(0,t_minus+0.1,0.1)
 t_range = np.array([round(t,2) for t in t_range])
-N_boot = 1000
+N_boot = 20000
 N_0 = 100
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
@@ -132,7 +133,8 @@ accepted_idx = []
 
 import time
 t1 = time.time()
-for k in range(N_boot):
+from tqdm import tqdm
+for k in tqdm(range(N_boot)):
     m11_zero = M11(known_ts, samples[k,:3], samples_X[k,0], **dict_zero)
     m11_plus = M11(known_ts, samples[k,3:], samples_X[k,1], **dict_plus)
     if det(m11_zero)>0 and det(m11_plus)>0:
@@ -173,7 +175,6 @@ for k in range(N_boot):
                 zero_dist[str(t)]['up'].append(np.min(zero_bounds[:,1]))
                 plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
                 plus_dist[str(t)]['up'].append(np.min(plus_bounds[:,1]))
-
 print('Time taken:',time.time()-t1)
 
 for t in t_range:
