@@ -159,7 +159,8 @@ accepted_idx = []
 
 import time
 t1 = time.time()
-for k in range(N_boot):
+from tqdm import tdqm
+for k in tqdm(range(N_boot)):
     m11_zero = M11(known_ts, samples[k,:3], samples_X[k,0], **dict_zero)
     m11_plus = M11(known_ts, samples[k,3:], samples_X[k,1], **dict_plus)
     if det(m11_zero)>0 and det(m11_plus)>0:
