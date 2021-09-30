@@ -146,7 +146,7 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'t_p':2.3178, 'ff':'0'}
 dict_plus = {'t_p':2.1122, 'ff':'+'}
 
-t_range = np.arange(0,t_minus+0.1,0.1)
+t_range = np.arange(0,t_minus+0.01,0.01)
 t_range = np.array([round(t,2) for t in t_range])
 N_boot = 100
 N_0 = 10
@@ -172,6 +172,9 @@ for k in tqdm(range(N_boot)):
             accepted_idx.append(k)
             np.random.seed(1)
             f0s = np.random.uniform(max(zero_low,plus_low), min(zero_up,plus_up), N_0)
+            #m1 = max(zero_low,plus_low)
+            #m2 = min(zero_up,plus_up)
+            #f0s = np.arange(m1, m2, (m2-m1)/N_0)
             known_ts_0 = np.hstack((known_ts,0))
             
             for t in t_range:
