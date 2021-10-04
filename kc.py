@@ -5,10 +5,10 @@ prec = np.float64
 # D -> K
 eta = 2
 
-m_1 = 1.869 # D
-m_2 = 0.493 # K
+m_2 = (0.493677+0.497611)/2 # K
+t_minus = 1.8846
+m_1 = m_2 + (t_minus**0.5)
 t_plus = (m_1 + m_2)**2
-t_minus = 1.8846 #(m_1 - m_2)**2
 
 Q_sq = 0
 
@@ -57,8 +57,6 @@ def M11(known_ts, known_ffs, X, **kwargs):
     N = len(known_ts)
     phi_ff_vec = np.array(phi(np.array(known_ts),**kwargs)*known_ffs,
                         dtype=prec)
-    #phi_ff_vec = np.array([phi(known_ts[i],**kwargs)*known_ffs[i]
-    #                       for i in range(N)])
 
     top_line = np.hstack((X, phi_ff_vec))
     g00 = G(known_ts)
@@ -73,7 +71,7 @@ def bounds(unknown_t, known_ts, known_ffs, X, prnt=False, **kwargs):
     N = len(known_ts)
     g = G(np.hstack((unknown_t, known_ts)))
 
-    alpha = det(del_RC(g,0,0))
+    alpha = det(G(known_ts))
     beta = np.sum(np.array([((-1)**(j+1))*phi(known_ts[j],**kwargs
                             )*known_ffs[j]*det(del_RC(g,0,j+1))
                             for j in range(N)], dtype=prec))
@@ -117,13 +115,13 @@ X_zero, X_plus = 0.0043, 0.00419
 X_zero_err, X_plus_err = 0.0013, 0.00036
 X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 
-dict_zero = {'t_p':2.3178, 'ff':'0'}
-dict_plus = {'t_p':2.1122, 'ff':'+'}
+dict_zero = {'t_p':2.3178**2, 'ff':'0'}
+dict_plus = {'t_p':2.1122**2, 'ff':'+'}
 
 t_range = np.arange(0,t_minus+0.1,0.1)
 t_range = np.array([round(t,2) for t in t_range])
-N_boot = 20000
-N_0 = 100
+N_boot = 100
+N_0 = 10
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 

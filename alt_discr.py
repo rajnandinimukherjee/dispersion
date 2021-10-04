@@ -16,10 +16,10 @@ while method not in ['1','2','3']:
 # D -> K
 eta = 2
 
-m_1 = 1.869 # D
-m_2 = 0.493 # K
+m_2 = (0.493677+0.497611)/2 # K
+t_minus = 1.8846
+m_1 = m_2 + (t_minus**0.5)
 t_plus = (m_1 + m_2)**2
-t_minus = 1.8846 #(m_1 - m_2)**2
 
 Q_sq = 0
 
@@ -143,8 +143,8 @@ X_zero, X_plus = 0.0043, 0.00419
 X_zero_err, X_plus_err = 0.0013, 0.00036
 X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 
-dict_zero = {'t_p':2.3178, 'ff':'0'}
-dict_plus = {'t_p':2.1122, 'ff':'+'}
+dict_zero = {'t_p':2.3178**2, 'ff':'0'}
+dict_plus = {'t_p':2.1122**2, 'ff':'+'}
 
 t_range = np.arange(0,t_minus+0.01,0.01)
 t_range = np.array([round(t,2) for t in t_range])
