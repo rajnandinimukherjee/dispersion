@@ -118,10 +118,12 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'t_p':2.3178**2, 'ff':'0'}
 dict_plus = {'t_p':2.1122**2, 'ff':'+'}
 
-t_range = np.arange(0,t_minus+0.1,0.1)
-t_range = np.array([round(t,2) for t in t_range])
-N_boot = 1000
-N_0 = 50
+t_range = np.array([0.0, 0.2692, 0.5385, 0.8077, 1.0769,
+                    1.3461, 1.6154, 1.8846])
+#t_range = np.arange(0,t_minus+0.1,0.1)
+#t_range = np.array([round(t,2) for t in t_range])
+N_boot = 100
+N_0 = 10
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
@@ -225,6 +227,8 @@ f_zero, f_zero_errs = final_bounds(zero_dist)
 f_plus, f_plus_errs = final_bounds(plus_dist)
 
 plt.figure()
+plt.plot(t_range, f_zero, c='b')
+plt.plot(t_range, f_plus, c='g')
 plt.fill_between(accepted_ts, f_zero+f_zero_errs, f_zero-f_zero_errs,
                 alpha=0.2, color='b')
 plt.fill_between(accepted_ts, f_plus+f_plus_errs, f_plus-f_plus_errs,
