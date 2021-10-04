@@ -120,8 +120,8 @@ dict_plus = {'t_p':2.1122**2, 'ff':'+'}
 
 t_range = np.arange(0,t_minus+0.1,0.1)
 t_range = np.array([round(t,2) for t in t_range])
-N_boot = 100
-N_0 = 10
+N_boot = 1000
+N_0 = 50
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
@@ -248,15 +248,15 @@ plt.errorbar(other_ts, other_f_plus, yerr=other_f_plus_errs, fmt='o',
 plt.legend(['f0','f+'])
 plt.xlabel('t')
 
-plt.figure()
-plt.plot(accepted_ts, bnds[:,0], c='b')
-plt.fill_between(accepted_ts, bnds[:,0]+bnds_err[:,0], bnds[:,0]-bnds_err[:,0],
-                alpha=0.2, color='b')
-plt.plot(accepted_ts, bnds[:,1], c='r')
-plt.fill_between(accepted_ts, bnds[:,1]+bnds_err[:,1], bnds[:,1]-bnds_err[:,1],
-                alpha=0.2, color='r')
-plt.legend(['lo','up'])
-plt.xlabel('t')
+#plt.figure()
+#plt.plot(accepted_ts, bnds[:,0], c='b')
+#plt.fill_between(accepted_ts, bnds[:,0]+bnds_err[:,0], bnds[:,0]-bnds_err[:,0],
+#                alpha=0.2, color='b')
+#plt.plot(accepted_ts, bnds[:,1], c='r')
+#plt.fill_between(accepted_ts, bnds[:,1]+bnds_err[:,1], bnds[:,1]-bnds_err[:,1],
+#                alpha=0.2, color='r')
+#plt.legend(['lo','up'])
+#plt.xlabel('t')
 
 plt.show()
 
