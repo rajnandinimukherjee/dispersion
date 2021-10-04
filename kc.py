@@ -82,8 +82,8 @@ def bounds(unknown_t, known_ts, known_ffs, X, prnt=False, **kwargs):
     disc = det(M11(known_ts, known_ffs, X, **kwargs))*det(g)
 
     #disc = ((beta**2)+(alpha*gamma))
-    #if disc<0:
-    #    disc=0
+    if disc<0:
+        disc=0
     upper_bound = (-beta+(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
     lower_bound = (-beta-(disc**0.5))/(alpha*phi(unknown_t,**kwargs))
 
@@ -111,8 +111,8 @@ COV_input = np.block([[COV[5:8,5:8],COV[5:8,12:15]],
                       [COV[12:15,5:8],COV[12:15,12:15]]])
 
 known_ffs = np.hstack((ffs_zero,ffs_plus))
-X_zero, X_plus = 0.0043, 0.00419
-X_zero_err, X_plus_err = 0.0013, 0.00036
+X_zero, X_plus = 0.00433, 0.00419
+X_zero_err, X_plus_err = 0.00133, 0.00036
 X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 
 dict_zero = {'t_p':2.3178**2, 'ff':'0'}
