@@ -122,15 +122,15 @@ t_range = np.array([0.0, 0.2692, 0.5385, 0.8077, 1.0769,
                     1.3461, 1.6154, 1.8846])
 #t_range = np.arange(0,t_minus+0.1,0.1)
 #t_range = np.array([round(t,2) for t in t_range])
-N_boot = 20000
-N_0 = 50
+N_boot = 100
+N_0 = 10
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
-#zero_dist = {str(t):{'up':[], 'lo':[]} for t in t_range}
-#plus_dist = {str(t):{'up':[], 'lo':[]} for t in t_range} 
-#accepted_idx = []
-#
+zero_dist = {str(t):{'up':[], 'lo':[]} for t in t_range}
+plus_dist = {str(t):{'up':[], 'lo':[]} for t in t_range} 
+accepted_idx = []
+
 #import time
 #t1 = time.time()
 #from tqdm import tqdm
@@ -175,6 +175,7 @@ samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 #                zero_dist[str(t)]['up'].append(np.max(zero_bounds[:,1]))
 #                plus_dist[str(t)]['lo'].append(np.min(plus_bounds[:,0]))
 #                plus_dist[str(t)]['up'].append(np.max(plus_bounds[:,1]))
+#
 #print('Time taken:',time.time()-t1)
 #
 #for t in t_range:
@@ -182,8 +183,8 @@ samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 #        del zero_dist[str(t)]
 #        del plus_dist[str(t)]
 import pickle
-zero_dist = pickle.load(open('zero_dist_20000x50x0.1.p','rb'))
-plus_dist = pickle.load(open('plus_dist_20000x50x0.1.p','rb'))
+zero_dist = pickle.load(open('zero_dist_20000x5xts.p','rb'))
+plus_dist = pickle.load(open('plus_dist_20000x5xts.p','rb'))
 
 def st_dev(data, mean=None, **kwargs):                                                                                                                                                                
     '''standard deviation function - finds stdev around data mean or mean
@@ -191,7 +192,7 @@ def st_dev(data, mean=None, **kwargs):
     n = len(data)
     if mean.any()==None:
         mean = np.mean(data)
-    return (((data-mean).dot(data-mean))/n)**0.5
+    return (((data-mean).dot(data-mean))/(n-1))**0.5
 
 accepted_ts = np.array(list(zero_dist.keys())).astype(float)
 bnds = np.zeros(shape=(len(accepted_ts),2))
@@ -212,8 +213,9 @@ def final_bounds(dist):
         bnds_err[i,:] = [f_lo_err, f_up_err]
         
         N = len(lows)
-        rho = np.sum(np.array([[(lows[i]-f_lo)*(ups[j]-f_up) for i in range(N)]
-                                for j in range(N)]))/(N-1)
+        rho = np.sum(np.array([(lows[i]-f_lo)*(ups[i]-f_up) for i in range(N)]))/(N-1)
+        rho = rho/(f_lo_err*f_up_err)
+        print(rho)
 
         f_t = (f_lo + f_up)/2
         var_t = ((f_up-f_lo)**2)/12
@@ -226,45 +228,53 @@ def final_bounds(dist):
 f_zero, f_zero_errs = final_bounds(zero_dist)
 f_plus, f_plus_errs = final_bounds(plus_dist)
 
-plt.figure()
-plt.plot(t_range, f_zero, c='b')
-plt.plot(t_range, f_plus, c='g')
-plt.fill_between(accepted_ts, f_zero+f_zero_errs, f_zero-f_zero_errs,
-                alpha=0.2, color='b')
-plt.fill_between(accepted_ts, f_plus+f_plus_errs, f_plus-f_plus_errs,
-                alpha=0.2, color='g')
-plt.errorbar(known_ts, ffs_zero, yerr=np.diag(COV_input)[:3]**0.5, fmt='o', 
-            capsize=4, c='r')
-plt.errorbar(known_ts, ffs_plus, yerr=np.diag(COV_input)[3:]**0.5, fmt='o', 
-            capsize=4, c='r')
+import scipy.stats as stats
+def plot_bounds(save=False):
+    plt.figure()
+    plt.plot(t_range, f_zero, c='b')
+    plt.plot(t_range, f_plus, c='g')
+    plt.fill_between(accepted_ts, f_zero+f_zero_errs, f_zero-f_zero_errs,
+                    alpha=0.2, color='b')
+    plt.fill_between(accepted_ts, f_plus+f_plus_errs, f_plus-f_plus_errs,
+                    alpha=0.2, color='g')
+    plt.errorbar(known_ts, ffs_zero, yerr=np.diag(COV_input)[:3]**0.5, fmt='o', 
+                capsize=4, c='r')
+    plt.errorbar(known_ts, ffs_plus, yerr=np.diag(COV_input)[3:]**0.5, fmt='o', 
+                capsize=4, c='r')
 
-other_ts = [0.0, 0.2692, 0.5385, 0.8077, 1.0769]
-other_f_zero = [0.765, 0.792, 0.820, 0.849, 0.879]
-other_f_zero_errs = [0.031, 0.028, 0.025, 0.023, 0.021]
+    other_ts = [0.0, 0.2692, 0.5385, 0.8077, 1.0769]
+    other_f_zero = [0.765, 0.792, 0.820, 0.849, 0.879]
+    other_f_zero_errs = [0.031, 0.028, 0.025, 0.023, 0.021]
 
-other_f_plus = [0.765, 0.815, 0.872, 0.937, 1.013]
-other_f_plus_errs = [0.031, 0.031, 0.031, 0.031, 0.034]
+    other_f_plus = [0.765, 0.815, 0.872, 0.937, 1.013]
+    other_f_plus_errs = [0.031, 0.031, 0.031, 0.031, 0.034]
 
-plt.errorbar(other_ts, other_f_zero, yerr=other_f_zero_errs, fmt='o', 
-            capsize=4, c='b')
-plt.errorbar(other_ts, other_f_plus, yerr=other_f_plus_errs, fmt='o', 
-            capsize=4, c='g')
-plt.legend(['f0','f+'])
-plt.xlabel('t')
+    plt.errorbar(other_ts, other_f_zero, yerr=other_f_zero_errs, fmt='o', 
+                capsize=4, c='b')
+    plt.errorbar(other_ts, other_f_plus, yerr=other_f_plus_errs, fmt='o', 
+                capsize=4, c='g')
+    plt.legend(['f0','f+'])
+    plt.xlabel('t')
 
-#plt.figure()
-#plt.plot(accepted_ts, bnds[:,0], c='b')
-#plt.fill_between(accepted_ts, bnds[:,0]+bnds_err[:,0], bnds[:,0]-bnds_err[:,0],
-#                alpha=0.2, color='b')
-#plt.plot(accepted_ts, bnds[:,1], c='r')
-#plt.fill_between(accepted_ts, bnds[:,1]+bnds_err[:,1], bnds[:,1]-bnds_err[:,1],
-#                alpha=0.2, color='r')
-#plt.legend(['lo','up'])
-#plt.xlabel('t')
+    if save:
+        plt.savefig('kc_ffs.pdf')
 
-plt.show()
+    plt.figure()
+    plt.plot(accepted_ts, bnds[:,0], c='b')
+    plt.fill_between(accepted_ts, bnds[:,0]+bnds_err[:,0], bnds[:,0]-bnds_err[:,0],
+                    alpha=0.2, color='b')
+    plt.plot(accepted_ts, bnds[:,1], c='r')
+    plt.fill_between(accepted_ts, bnds[:,1]+bnds_err[:,1], bnds[:,1]-bnds_err[:,1],
+                    alpha=0.2, color='r')
+    plt.legend(['lo','up'])
+    plt.xlabel('t')
 
+    if save:
+        plt.savefig('kc_bounds_dist.pdf')
 
+    plt.show()
+
+plot_bounds()
 
         
 

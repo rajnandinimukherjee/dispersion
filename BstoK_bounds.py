@@ -101,10 +101,10 @@ def bootstrap(var, cov, K=100, **kwargs):
     return samples
 
 
-import h5py as h5
 
 nplus=3 # number of input values for f+
 nzero=3 # number of input values for f0
+#import h5py as h5
 #path='/home/rm/PhD/disp/BstoK_data/'
 #with h5.File(path+'zfit_data_BstoK.h5', 'r') as f:
 #    gp=f.get('BstoK_refdata_qsqmin_17.50_Np{:d}_Nz{:d}'.format(nplus,nzero))
@@ -124,7 +124,7 @@ X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 dict_zero = {'ff':'0'}
 dict_plus = {'t_p':5.3247**2, 'ff':'+'}
 
-t_range = np.arange(0,t_0,0.1)
+t_range = np.arange(0,known_ts[0]+0.1,0.1)
 N_boot = 50
 N_0 = 5
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
@@ -217,12 +217,11 @@ def final_bounds(dist):
         bnds_err[i,:] = [f_lo_err, f_up_err]
         
         N = len(lows)
-        rho = np.sum(np.array([[(lows[i]-f_lo)*(ups[j]-f_up) for i in range(N)]
-                                for j in range(N)]))/(N-1)
+        rho = np.sum(np.array([(lows[i]-f_lo)*(ups[i]-f_up) for i in range(N)]))/(N-1)
 
         f_t = (f_lo + f_up)/2
         var_t = ((f_up-f_lo)**2)/12
-        var_t = var_t + ((f_lo_err**2)+(f_up_err**2)+(rho*f_lo_err*f_up_err))/3
+        var_t = var_t + ((f_lo_err**2)+(f_up_err**2)+(rho))/3
 
         f[i] = f_t
         errs[i] = var_t**0.5
