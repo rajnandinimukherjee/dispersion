@@ -102,17 +102,19 @@ def bootstrap(var, cov, K=100, **kwargs):
 
 
 
-nplus=3 # number of input values for f+
+nplus=2 # number of input values for f+
 nzero=3 # number of input values for f0
-#import h5py as h5
-#path='/home/rm/PhD/disp/BstoK_data/'
-#with h5.File(path+'zfit_data_BstoK.h5', 'r') as f:
-#    gp=f.get('BstoK_refdata_qsqmin_17.50_Np{:d}_Nz{:d}'.format(nplus,nzero))
-#    known_ts=np.array(gp['qsqref'])
-#    known_ffs=np.array(gp['central'])
-#    COV_input=np.array(gp['tot_cov'])
+import h5py as h5
+path='/home/rm/PhD/disp/BstoK_data/'
+with h5.File(path+'zfit_data_BstoK.h5', 'r') as f:
+    gp=f.get('BstoK_refdata_qsqmin_17.50_Np{:d}_Nz{:d}'.format(nplus,nzero))
+    known_ts=np.array(gp['qsqref'])
+    known_ffs=np.array(gp['central'])
+    COV_input=np.array(gp['tot_cov'])
 import pickle
-[known_ts, known_ffs, COV_input] = pickle.load(open('BstoK_Data_3x3.p','rb'))
+pickle.dump([known_ts, known_ffs, COV_input], open(f'BstoK_Data_{nplus}x{nzero}.p','wb'))
+#import pickle
+#[known_ts, known_ffs, COV_input] = pickle.load(open('BstoK_Data_3x3.p','rb'))
 
 g00 = G(known_ts[:nplus])
 print('g00 is pos def') if det(g00)>0 else print('g00 is not pos def')
@@ -125,8 +127,8 @@ dict_zero = {'ff':'0'}
 dict_plus = {'t_p':5.3247**2, 'ff':'+'}
 
 t_range = np.arange(0,known_ts[0]+0.1,0.1)
-N_boot = 50
-N_0 = 5
+N_boot = 100
+N_0 = 10
 samples = bootstrap(known_ffs, COV_input, K=N_boot)
 samples_X = bootstrap(X,np.diag(X_err)**2,K=N_boot)
 
