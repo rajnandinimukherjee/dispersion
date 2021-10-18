@@ -120,7 +120,7 @@ g00 = G(known_ts[:nplus])
 print('g00 is pos def') if det(g00)>0 else print('g00 is not pos def')
 
 X_zero, X_plus = 1.48e-2, 6.03e-4 
-X_zero_err, X_plus_err = X_zero/20, X_plus/20 # made 5% error 
+X_zero_err, X_plus_err = 0, 0 #X_zero/100, X_plus/100 # made 1% error 
 X, X_err = np.array([X_zero,X_plus]), np.array([X_zero_err, X_plus_err])
 
 dict_zero = {'ff':'0'}
