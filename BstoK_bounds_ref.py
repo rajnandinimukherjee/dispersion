@@ -102,8 +102,8 @@ def bootstrap(var, cov, K=100, **kwargs):
 
 
 
-nplus=10 # number of input values for f+
-nzero=10 # number of input values for f0
+nplus=5 # number of input values for f+
+nzero=5 # number of input values for f0
 #import h5py as h5
 #path='/home/rm/PhD/disp/BstoK_data/'
 #with h5.File(path+'zfit_data_BstoK.h5', 'r') as f:
