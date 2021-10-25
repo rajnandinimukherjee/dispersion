@@ -1,6 +1,8 @@
 import numpy as np 
 import h5py
 import masses
+
+n=10
 # predict BstoK formfactors and covariance matrix for any choice of reference kineamtics based on HMChPT
 def ff_E(Evec,pole,coeff):
   # construct ff from HMChPT in continuum limit
@@ -25,7 +27,7 @@ mKphys		= masses.mK
 mBsphys		= masses.mBs
 #
 #qsq_refK	= np.array([23.7283556,22.11456,20.07895,17.5000000]) # you can choose this freely 
-qsq_refK	= np.linspace(17.5,23.7283556,num=10) 
+qsq_refK	= np.linspace(17.5,23.7283556,num=n) 
 #
 ksq_refK 	= (mBsphys**4+(mKphys**2-qsq_refK)**2-2*mBsphys**2*(mKphys**2+qsq_refK))/(4*mBsphys**2)
 ErefK 	 	= np.sqrt(mKphys**2+ksq_refK)
@@ -41,6 +43,9 @@ fp_BstoK 	= np.array(ff_E(ErefK,Deltaperp,cp_BstoK))
 f0_BstoK 	= np.array(ff_E(ErefK,Deltapar ,c0_BstoK))
 ff_ref		= np.r_[ fp_BstoK, f0_BstoK]
 Cp0_ref 	= cov_ff_p0(ErefK,ErefK,Cp0_BstoK,2,3,Deltaperp,Deltapar)
+
+import pickle
+pickle.dump([qsq_refK, ff_ref, Cp0_ref], open(f'BstoK_Data_{n}x{n}.p','wb'))
 # some IO
 #print 'ff results ',np.r_[fp_BstoK,f0_BstoK]
 #print 'dff results' np.sqrt(np.diag(Cp0_ref))
