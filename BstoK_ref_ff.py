@@ -24,7 +24,8 @@ def cov_ff_p0(Evec_p,Evec_0,C,Np,N0,pole_p,pole_0):
 mKphys		= masses.mK 
 mBsphys		= masses.mBs
 #
-qsq_refK	= np.array([23.7283556,22.11456,20.07895,17.5000000]) # you can choose this freely 
+#qsq_refK	= np.array([23.7283556,22.11456,20.07895,17.5000000]) # you can choose this freely 
+qsq_refK	= np.linspace(17.5,23.7283556,num=10) 
 #
 ksq_refK 	= (mBsphys**4+(mKphys**2-qsq_refK)**2-2*mBsphys**2*(mKphys**2+qsq_refK))/(4*mBsphys**2)
 ErefK 	 	= np.sqrt(mKphys**2+ksq_refK)
